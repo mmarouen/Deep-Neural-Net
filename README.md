@@ -1,4 +1,8 @@
 # Deep-Neural-Net
+Implements:  
+neural networks regression  
+binary, multinomial and weighted classification  
+MLP & autoencoders  
 # Multilayer Perceptron  
 NN parameters are very flexible:  
 1. Type= "Classification" or "Regression"  
