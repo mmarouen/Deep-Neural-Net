@@ -1,6 +1,5 @@
 # Deep-Neural-Net
 Implements a multi-layer-perceptron + Autoencoder  
-The purpose of this implementation is experimentation and is not intended to be used in production environment for runtime reasons.  
 NN parameters are very flexible:  
 1. Type= "Classification" or "Regression"  
 2. DW (Depth/Width of the network)=vector where each value indicates neurons in indexed layer  
@@ -16,3 +15,4 @@ NB: To implement an autoencoder:
 2. set loss="RSS"  
 3. if input is 0...1 then set output to "Softmax" or "Sigmoid" if parameters >1 or ==1 respectively  
 4. Other parameters are tuned identically to other neural networks  
+Remark: For runtime optimization reasons, the purpose of this implementation is experimentation and is not intended to be used in production environment.  
