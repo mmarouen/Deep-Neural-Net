@@ -5,8 +5,20 @@
 #neurons architecture is referred via a vector DW:
 #####takes a vector of length=#hidden layers, value[i]=#neurons layer i
 #default is c(6): 1 hidden layer, 6 neurons 
+# Type= "Classification" or "Regression"
+# DW (Depth/Width of the network)=vector where each value indicates neurons in indexed layer
+# loss (loss function)= "RSS" or "Deviance" (either logistic loss or residual sum of squares)
+# outputFunc (output function)= "Sigmoid", "Softmax", "Identity"
+# activationFunc (activation function)= "tanh", "sigmoid", "linear" (relu on the way)
+# rate=learning rate
+# weightDecay=TRUE/FALSE
+# lambda=coefficient of the weight decay
+# gradient checker=TRUE/FALSE debugging tool will perform gradient verification
+# traceObj=TRUE/FALSE tracks score evolution
+# traceWeights=TRUE/FALSE tracks weights variation
+
 neuralNet<-function(Input,response,InputTest=NULL,respTest=NULL,DW=c(6),type="Regression",
-                    loss="RSS",family="MLP",epochs=NULL,outputFunc="Identity",tol=1e-5,
+                    loss="RSS",epochs=NULL,outputFunc="Identity",tol=1e-5,
                     activationFunc="sigmoid",rate=0.01,weightDecay=FALSE,lambda=NULL,
                     gradientCheck=FALSE,traceObj=FALSE,traceWeights=FALSE,weightsVector=NULL){
   if(is.null(epochs)){epochs=15000}
