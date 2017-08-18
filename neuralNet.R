@@ -16,6 +16,7 @@
 # gradient checker=TRUE/FALSE debugging tool will perform gradient verification
 # traceObj=TRUE/FALSE tracks score evolution
 # traceWeights=TRUE/FALSE tracks weights variation
+# weightsVector=permits for weights classification: weight of each class
 
 neuralNet<-function(Input,response,InputTest=NULL,respTest=NULL,DW=c(6),type="Regression",
                     loss="RSS",epochs=NULL,outputFunc="Identity",tol=1e-5,
