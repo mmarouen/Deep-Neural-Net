@@ -1,5 +1,5 @@
 # Deep-Neural-Net
-Implements a multi-layer-perceptron + Autoencoder  
+# Multilayer Perceptron  
 NN parameters are very flexible:  
 1. Type= "Classification" or "Regression"  
 2. DW (Depth/Width of the network)=vector where each value indicates neurons in indexed layer  
@@ -10,7 +10,7 @@ NN parameters are very flexible:
 7. weightDecay=TRUE/FALSE  
 8. lambda=coefficient of the weight decay  
 9. a host of <NN cheking tools such as gradient checker, traceObjective function, trace loss function, ...  
-NB: To implement an autoencoder:  
+# Autoencoder:  
 1. set type="Regression"  
 2. set loss="RSS"  
 3. if input is 0...1 then set output to "Softmax" or "Sigmoid" if parameters >1 or ==1 respectively  
