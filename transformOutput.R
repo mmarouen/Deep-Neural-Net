@@ -1,3 +1,4 @@
+#Utility function
 #transform NN output vector/matrix into factor
 transformOutput<-function(ZZ,tt="Regression",activation="sigmoid",classes){
   if(tt=="Regression"){
