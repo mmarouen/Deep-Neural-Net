@@ -16,3 +16,4 @@ NN parameters are very flexible:
 3. if input is 0...1 then set output to "Softmax" or "Sigmoid" if parameters >1 or ==1 respectively  
 4. Other parameters are tuned identically to other neural networks  
 Remark: For runtime optimization reasons, the purpose of this implementation is experimentation and is not intended to be used in production environment.  
+Please send all your remarks to <azzouz.marouen@gmail.com> 
