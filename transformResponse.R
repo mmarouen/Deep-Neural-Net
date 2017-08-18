@@ -1,3 +1,4 @@
+#Utility function
 #transform response vector according to binary & multinom classification
 transformResponse<-function(resp,tt="Regression"){
   classes=NULL
