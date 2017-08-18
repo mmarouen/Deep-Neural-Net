@@ -1,3 +1,21 @@
+#performs backpropagation algorithm
+#### Parameters
+#output=list containing neurons' output (1st element is data)
+#weight=list of weights by layer
+#resp=response vector
+#tt="Regression" or "Classification"
+#ll=loss function
+#outF=output function
+#activation=activation function
+#rr=learning rate
+#wD (weight decay)=list where 1st item is TRUE/FALSE and 2nd item is lambda value
+#trW (trace weights)=TRUE/FALSE
+#### Returns
+#W=updated weights list
+#D=gradient
+#tr=trace weights update (if trW)
+#gradupdate=gradient values update (if trW)
+
 backPropagate<-function(output,weight,resp,tt="Regression",ll="RSS",outF="Identity",
                         activation="sigmoid",rr,wD,trW,weightsVector){
   N=nrow(output[[1]])
