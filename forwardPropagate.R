@@ -14,15 +14,23 @@ forwardPropagate<-function(weight,X,tt="Regression",outF="Identity",activation="
   output[[1]]=as.matrix(cbind(1,X))
   for(i in 2:L){
     if(i<L){
-      mat=as.matrix(weight[[i-1]])
+      Zi=output[[i-1]]%*%as.matrix(weight[[i-1]])
       if (activation=="sigmoid"){
-        output[[i]]=apply(mat,2,function(x) 1/(1+exp(-output[[i-1]]%*%x)))
+        # output[[i]]=apply(mat,2,function(x) 1/(1+exp(-output[[i-1]]%*%x)))
+        output[[i]]=1/(1+exp(-Zi))
+        
       }
       if (activation=="tanh"){
-        output[[i]]=apply(mat,2,function(x) 1.7159*tanh((2/3)*output[[i-1]]%*%x))
+        #output[[i]]=apply(mat,2,function(x) 1.7159*tanh((2/3)*output[[i-1]]%*%x))
+        output[[i]]=1.7159*tanh((2/3)*Zi)
+        
       }
       if(activation=="linear"){
-        output[[i]]=output[[i-1]]%*%mat
+        output[[i]]=Zi
+      }
+      if(activation=="ReLU"){
+        output[[i]]=Zi
+        output[[i]][output[[i]]<0]=0
       }
       output[[i]]=cbind(1,output[[i]])
     }
@@ -41,3 +49,4 @@ forwardPropagate<-function(weight,X,tt="Regression",outF="Identity",activation="
   }
   return(list(Z=output))
 }
+
