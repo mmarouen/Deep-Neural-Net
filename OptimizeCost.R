@@ -14,7 +14,7 @@
 #scoreTest=score Curve for validation matrix if debugging
 #wTune=weightTune
 
-NNBGD<-function(weight,resp,X,respT=NULL,XT=NULL,tt="Regression",ll="RSS",outF="Identity",
+OptimizeCost<-function(weight,resp,X,respT=NULL,XT=NULL,tt="Regression",ll="RSS",outF="Identity",
                 active="sigmoid",rr,wD,gradientCheck=FALSE,traceobj,trW,Epochs,Tolerance,weightsVec){
   r=1
   error=NULL
@@ -33,16 +33,27 @@ NNBGD<-function(weight,resp,X,respT=NULL,XT=NULL,tt="Regression",ll="RSS",outF="
   if(trW){for(i in 1:length(weight)){weightsRatio[[i]]=0}}
   error=rep(0,length=8)
   repeat{
+    ### forward propagation
     FP=forwardPropagate(weight,X,tt,outF,active)
     output=FP$Z
+    
+    ### back propagation
     BP=backPropagate(output,weight,resp0,tt,ll,outF,active,rr,wD,trW,weightsVec)
-    ###gradient check
+    
+    ### Gradient check loop
     if(gradientCheck & (r %in% c(50,500,700,1000,2000,3000,5000,6000,7000,8000,9000))){
       check=gradChecker2(weight,BP$D,output,resp0,tt,ll,outF,active,wD,weightsVector = weightsVec)
       error[which(c(50,500,700,1000,2000,3000,5000,6000,7000,8000,9000)==r)]=check
     }
+    
+    ### weights update
     weight=BP$W
+    
+    ### update network response
     rsp2=transformOutput(output,tt,active,CL)
+    resp2=rsp2$yhatMat
+    
+    ### Compute Cost
     if(traceobj){
       obj=objective(output[[length(output)]],resp0,weight,tt,ll,outF,wD,weightsVec)
       lossCurve=c(lossCurve,obj)
@@ -59,24 +70,28 @@ NNBGD<-function(weight,resp,X,respT=NULL,XT=NULL,tt="Regression",ll="RSS",outF="
         
       }
     }
+    
+    #trace weights evolution
     if(trW){
       for(i in 1:length(weight)){
         weightsRatio[[i]]=cbind(weightsRatio[[i]],BP$tr[[i]])
       }
     }
-    resp2=rsp2$yhatMat
+    
+    ### Convergence test
     diff=mean(abs(resp2-resp1))
     if((r==Epochs)|(diff<Tolerance)){break}
     r=r+1
     resp1=resp2
   }
+  
   if(trW){
     for(i in 1:length(weight)){
       weightsRatio[[i]]=weightsRatio[[i]][,-1]
     }
     weightTune=list(weightsRatio,BP$gradupdate)
   }
+  #final response
   trans=transformOutput(output,tt,active,CL)
-  return(list(yhat=trans$yhat,Z=output,W=weight,D=BP$D,reps=r,yhatMat=trans$yhatMat,grad=error,lossTrain=lossCurve,
-  lossTest=lossCurve2,scoreTrain=score,scoreTest=score2,wTune=weightTune))
+  return(list(yhat=trans$yhat,Z=output,W=weight,D=BP$D,reps=r,yhatMat=trans$yhatMat,grad=error,lossTrain=lossCurve,lossTest=lossCurve2,scoreTrain=score,scoreTest=score2,wTune=weightTune))
 }
