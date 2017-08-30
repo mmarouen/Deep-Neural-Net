@@ -16,6 +16,7 @@
 #tr=trace weights update (if trW)
 #gradupdate=gradient values update (if trW)
 
+#back propagation
 backPropagate<-function(output,weight,resp,tt="Regression",ll="RSS",outF="Identity",
                         activation="sigmoid",rr,wD,trW,weightsVector){
   N=nrow(output[[1]])
@@ -28,14 +29,15 @@ backPropagate<-function(output,weight,resp,tt="Regression",ll="RSS",outF="Identi
   for(i in L:2){#weights in layer i are one index below: Z[[i]]=f(Z[[i-1]]%*%W[[i-1]])
     if(i==L){#output layer
       mat0=output[[length(output)]]
-      delta[[i]]=(mat0-resp)
+      deltaL=(mat0-resp)
+      if((tt=="Regression" & outF=="Identity")|(tt=="Classification" & outF=="Softmax")){
+        delta[[i]]=deltaL
+      }
       if(tt=="Regression" & outF=="Sigmoid"){
-        mat1=delta[[i]]
-        delta[[i]]=mat0*(1-mat0)*mat1
+        delta[[i]]=mat0*(1-mat0)*deltaL
       }
       if(tt=="Regression" & outF=="Tanh"){
-        mat1=delta[[i]]
-        delta[[i]]=mat1*(1-mat0^2)
+        delta[[i]]=deltaL*(1-mat0^2)
       }
       if(tt=="Regression" & outF=="Softmax"){
         mat1=matrix(0,ncol=ncol(mat0),nrow = nrow(mat0))
@@ -61,17 +63,17 @@ backPropagate<-function(output,weight,resp,tt="Regression",ll="RSS",outF="Identi
         mat2=delta[[i+1]]%*%t(weight[[i]][2:nrow(weight[[i]]),])
       }
       if(activation=="tanh"){
-        delta[[i]]=apply(as.matrix(1:ncol(mat1)),1,function(x) 1.7159*(2/3)*(1-(mat1[,x]/1.7159)^2)*mat2[,x])
+        # delta[[i]]=apply(as.matrix(1:ncol(mat1)),1,function(x) 1.7159*(2/3)*(1-(mat1[,x]/1.7159)^2)*mat2[,x])
+        delta[[i]]=1.7159*(2/3)*(1-(mat1/1.7159)^2)*mat2
       }
       if(activation=="sigmoid"){
-        delta[[i]]=apply(as.matrix(1:ncol(mat1)),1,function(x) (mat1[,x]*(1-mat1[,x]))*mat2[,x])
+        # delta[[i]]=apply(as.matrix(1:ncol(mat1)),1,function(x) (mat1[,x]*(1-mat1[,x]))*mat2[,x])
+        delta[[i]]=mat1*(1-mat1)*mat2
       }
       if(activation=="linear"){
-        # delta[[i]]=apply(as.matrix(1:ncol(mat1)),1,function(x) mat1[,x]*mat2[,x])
         delta[[i]]=mat2
       }
     }
-    #tmp[[i-1]]=weight[[i-1]]-rr*(1/(N*K))*t(output[[i-1]])%*%delta[[i]]
     tmp[[i-1]]=weight[[i-1]]-rr*(1/N)*t(output[[i-1]])%*%delta[[i]]
     if(wD[[1]]){#regularization
       lambda=wD[[2]]
