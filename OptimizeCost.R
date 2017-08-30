@@ -38,7 +38,7 @@ OptimizeCost<-function(weight,resp,X,respT=NULL,XT=NULL,tt="Regression",ll="RSS"
     output=FP$Z
     
     ### back propagation
-    BP=backPropagate(output,weight,resp0,tt,ll,outF,active,rr,wD,trW,weightsVec)
+    BP=backPropagate(output,weight,resp0,ll,outF,active,rr,wD,trW,weightsVec)
     
     ### Gradient check loop
     if(gradientCheck & (r %in% c(50,500,700,1000,2000,3000,5000,6000,7000,8000,9000))){
@@ -55,14 +55,14 @@ OptimizeCost<-function(weight,resp,X,respT=NULL,XT=NULL,tt="Regression",ll="RSS"
     
     ### Compute Cost
     if(traceobj){
-      obj=objective(output[[length(output)]],resp0,weight,tt,ll,outF,wD,weightsVec)
+      obj=objective(output[[length(output)]],resp0,weight,ll,wD,weightsVec)
       lossCurve=c(lossCurve,obj)
       respTr=rsp2$yhat
       if(tt=="Classification"){score=c(score,mean(respTr==resp$response))}
       if(tt=="Regression"){score=c(score,1-obj)}
       if(!is.null(XT) & !is.null(respT)){
         outT=forwardPropagate(weight,XT,tt,outF,active)$Z
-        obj2=objective(outT[[length(outT)]],respT0,weight,tt,ll,outF,wD,weightsVec)
+        obj2=objective(outT[[length(outT)]],respT0,weight,ll,wD,weightsVec)
         lossCurve2=c(lossCurve2,obj2)
         yhatTest=transformOutput(outT,tt,active,CL)$yhat
         if(tt=="Classification"){score2=c(score2,mean(respT==yhatTest))}
