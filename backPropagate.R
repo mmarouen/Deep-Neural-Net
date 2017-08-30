@@ -16,8 +16,7 @@
 #tr=trace weights update (if trW)
 #gradupdate=gradient values update (if trW)
 
-#back propagation
-backPropagate<-function(output,weight,resp,tt="Regression",ll="RSS",outF="Identity",
+backPropagate<-function(output,weight,resp,ll="RSS",outF="Identity",
                         activation="sigmoid",rr,wD,trW,weightsVector){
   N=nrow(output[[1]])
   K=ncol(resp)
@@ -30,16 +29,16 @@ backPropagate<-function(output,weight,resp,tt="Regression",ll="RSS",outF="Identi
     if(i==L){#output layer
       mat0=output[[length(output)]]
       deltaL=(mat0-resp)
-      if((tt=="Regression" & outF=="Identity")|(tt=="Classification" & outF=="Softmax")){
+      if((ll=="RSS" & outF=="Identity")|(ll=="CrossEntropy" & outF=="Softmax")){
         delta[[i]]=deltaL
       }
-      if(tt=="Regression" & outF=="Sigmoid"){
+      if(ll=="RSS" & outF=="Sigmoid"){
         delta[[i]]=mat0*(1-mat0)*deltaL
       }
-      if(tt=="Regression" & outF=="Tanh"){
+      if(ll=="RSS" & outF=="Tanh"){
         delta[[i]]=deltaL*(1-mat0^2)
       }
-      if(tt=="Regression" & outF=="Softmax"){
+      if(ll=="RSS" & outF=="Softmax"){
         mat1=matrix(0,ncol=ncol(mat0),nrow = nrow(mat0))
         mat2=delta[[i]]
         for(p in 1:K){
