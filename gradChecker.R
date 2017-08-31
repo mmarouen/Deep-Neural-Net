@@ -14,7 +14,6 @@
 #### returns
 #error
 
-gradChecker2<-function(W,delta,Z,resp,tt="Regression",ll="RSS",outF="Identity",
                        active="sigmoid",wD,tol=1e-5,weightsVector){
   l=sample(1:length(W),1)
   i=sample(1:nrow(W[[l]]),1)
@@ -26,20 +25,19 @@ gradChecker2<-function(W,delta,Z,resp,tt="Regression",ll="RSS",outF="Identity",
   #numerical gradient
   #right side
   W[[l]][i,j]=W[[l]][i,j]+tol
-  fp1=forwardPropagate(W,X,tt,outF,active)
+  fp1=forwardPropagate(W,X,outF,active)
   mat1=fp1$Z[[length(fp1$Z)]]
-  estPlus=objective(mat1,resp,W,tt,ll,outF,wD,weightsVector)
+  estPlus=objective(mat1,resp,W,ll,wD,weightsVector)
   #left side
   W[[l]][i,j]=W[[l]][i,j]-2*tol
-  fp2=forwardPropagate(W,X,tt,outF,active)
+  fp2=forwardPropagate(W,X,outF,active)
   mat2=fp2$Z[[length(fp2$Z)]]
-  estMinus=objective(mat2,resp,W,tt,ll,outF,wD,weightsVector)
+  estMinus=objective(mat2,resp,W,ll,wD,weightsVector)
   #restore weight
   W[[l]][i,j]=W[[l]][i,j]+tol
   #gradient
   gradEst=(estPlus-estMinus)/(2*tol)
   #Analytical gradient
-  #toCheck=(1/(K*nrow(as.matrix(X))))*sum(Z[[l]][,i]*delta[[l+1]][,j])
   toCheck=mean(Z[[l]][,i]*delta[[l+1]][,j])
   if(wD[[1]] & !biais){toCheck=toCheck+wD[[2]]*W[[l]][i,j]}
   error=(gradEst-toCheck)/max(abs(gradEst),abs(toCheck))
