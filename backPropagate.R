@@ -48,7 +48,6 @@ backPropagate<-function(output,weight,resp,ll="RSS",outF="Identity",
         }
         delta[[i]]=mat1
       }
-      delta[[i]]=delta[[i]]%*%weightsVector
     }
     if(i<=(L-1)){#BP to hidden layers
       mat1=output[[i]][,-1]
@@ -62,11 +61,9 @@ backPropagate<-function(output,weight,resp,ll="RSS",outF="Identity",
         mat2=delta[[i+1]]%*%t(weight[[i]][2:nrow(weight[[i]]),])
       }
       if(activation=="tanh"){
-        # delta[[i]]=apply(as.matrix(1:ncol(mat1)),1,function(x) 1.7159*(2/3)*(1-(mat1[,x]/1.7159)^2)*mat2[,x])
         delta[[i]]=1.7159*(2/3)*(1-(mat1/1.7159)^2)*mat2
       }
       if(activation=="sigmoid"){
-        # delta[[i]]=apply(as.matrix(1:ncol(mat1)),1,function(x) (mat1[,x]*(1-mat1[,x]))*mat2[,x])
         delta[[i]]=mat1*(1-mat1)*mat2
       }
       if(activation=="linear"){
