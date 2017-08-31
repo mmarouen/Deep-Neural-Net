@@ -1,10 +1,10 @@
 # Deep-Neural-Net
 Implements:  
 neural networks regression  
-binary, multinomial and weighted classification  
+binary and multinomial classification  
 MLP & autoencoders  
-NN is called using the "neuralNet" method  
-The library also comes with a visualizer (neuralNet_visualizer sub-folder):  
+Calling Function:"neuralNet" method  
+Graphics: The library also comes with a visualizer (neuralNet_visualizer sub-folder)  
 1. visualize model summary (error rate, gradient check values, ...)  
 2. plot objective function for validation and training  
 3. plot weights evolution through network layers  
