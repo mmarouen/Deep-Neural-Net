@@ -29,7 +29,7 @@ backPropagate<-function(output,weight,resp,ll="RSS",outF="Identity",
     if(i==L){#output layer
       mat0=output[[length(output)]]
       deltaL=(mat0-resp)
-      if((ll=="RSS" & outF=="Identity")|(ll=="CrossEntropy" & outF=="Softmax")){
+      if((ll=="RSS" & outF=="Identity")|(ll=="CrossEntropy" & outF=="Softmax")|(ll=="CrossEntropy" & outF=="Sigmoid")){
         delta[[i]]=deltaL
       }
       if(ll=="RSS" & outF=="Sigmoid"){
