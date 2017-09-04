@@ -19,7 +19,6 @@ init<-function(layers,#hidden layers vector
   cte=1
   moment=list()
   rmsprop=list()
-  set.seed(10)
   if(!is.null(weightsVector)){weightsVector=diag(weightsVector)}
   if(is.null(weightsVector)){weightsVector=diag(rep(1/K,K))}
   options(warn=-1)
