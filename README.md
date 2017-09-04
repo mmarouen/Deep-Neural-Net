@@ -2,8 +2,13 @@
 Implements:  
 neural networks regression  
 binary and multinomial classification  
-MLP & autoencoders  
+MLP & autoencoders 
+gradient descent acceleration through several methods:  
+1. mini-batch gradientdescent  
+2. optimization algorithms: 'Adam', 'RMSProp', 'Momentum'  
+
 Calling Function:"neuralNet" method  
+
 Graphics: The library also comes with a visualizer (neuralNet_visualizer sub-folder)  
 1. visualize model summary (error rate, gradient check values, ...)  
 2. plot objective function for validation and training  
