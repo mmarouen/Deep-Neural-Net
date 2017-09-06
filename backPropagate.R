@@ -85,8 +85,8 @@ backPropagate<-function(output, #neuron output
     if(wD[[1]]){#regularization
       lambda=wD[[2]]
       mat0=weight[[i-1]][2:nrow(weight[[i-1]]),]
-      if(ncol(tmp[[i-1]])==1){mat0=c(0,mat0)}
-      if(ncol(tmp[[i-1]])>1){mat0=rbind(0,mat0)}
+      if(ncol(weight[[i-1]])==1){mat0=c(0,mat0)}
+      if(ncol(weight[[i-1]])>1){mat0=rbind(0,mat0)}
       gradRaw[[i]]=gradRaw[[i]]+lambda*mat0}
     gradMat=matrix(0,ncol=ncol(gradRaw[[i]]))
     
