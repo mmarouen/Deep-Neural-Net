@@ -43,7 +43,7 @@ backPropagate<-function(output, #neuron output
       }
       if(ll=="RSS" & outF=="Softmax"){
         mat1=matrix(0,ncol=ncol(mat0),nrow = nrow(mat0))
-        mat2=delta[[i]]
+        mat2=deltaL
         for(p in 1:K){
           for(j in 1:K){
             mat1[,p]=mat1[,p]+mat0[,j]*mat2[,j]*(delt(p,j)-mat0[,p])
