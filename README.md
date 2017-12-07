@@ -1,13 +1,15 @@
 # Deep-Neural-Net
 Implements:  
-neural networks regression  
-binary and multinomial classification  
-MLP & autoencoders 
-gradient descent acceleration through several methods:  
-1. mini-batch gradientdescent  
+-neural networks regression  
+-binary and multinomial classification  
+-autoencoders  
+Several features available for a more efficient gradient descent:  
+1. mini-batch GD  
 2. optimization algorithms: 'Adam', 'RMSProp', 'Momentum'  
+3. Batch normalization  
+4. Ridge regulrization  
 
-Calling Function:"neuralNet" method  
+Calling Function:"neuralNet"  
 
 Graphics: The library also comes with a visualizer (neuralNet_visualizer sub-folder)  
 1. visualize model summary (error rate, gradient check values, ...)  
