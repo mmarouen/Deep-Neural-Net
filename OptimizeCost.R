@@ -13,22 +13,17 @@
 #scoreTest=score Curve for validation matrix if debugging
 #wTune=weightTune
 
-OptimizeCost<-function(weight,resp,X,respT=NULL,XT=NULL, #respectively: neurons, response, input data, test response, test input
-                       tt="Regression", #operation type: "Regression" or "Classification"
-                       ll="RSS", #loss function: "RSS" or "CrossEntropy"
-                       outF="Identity", #final layer activation function
-                       active="sigmoid", #hidden layers activation
+OptimizeCost<-function(weight,biases, #respectively weights & biases
+                       resp,X,respT=NULL,XT=NULL, #respectively input matrix, response matrix, input test matrix, response test matrix
+                       tt="Regression",ll="RSS",#respectively mode & loss function
+                       outF="Identity",active="sigmoid",#respectively final layer activation & hidden layers activation
                        rr, #learning rate
-                       minib, #minibatch size,input value wil be converted to exponent of 2
-                       # so if minib=5 ==> mini-batch size= 2^5=32
-                       wD, #weight decay
-                       gradientCheck=FALSE,traceobj,trW,Epochs,Tolerance,weightsVec, #debugging params
-                       optimization,#optimization agorithm
-                       beta1,#momentum parameter
-                       beta2,#RMSprop parameter
-                       momentum,#momentum grad
-                       rmsprop #RMSprop grad
-                      ){
+                       minib, #minibatch size in log2 (minib=3 ==> batch size=8)
+                       wD,#weight decay
+                       gradientCheck=FALSE,traceobj,trW,#debuggers
+                       Epochs,Tolerance, #respectively number of epochs & tolerence
+                       optimization,#optimization algorithm
+                       beta1,beta2,momentum,momentum_b,rmsprop,rmsprop_b,bnVars){
   r=1 #epochs count
   t=0 #iterations count
   error=NULL
@@ -46,21 +41,17 @@ OptimizeCost<-function(weight,resp,X,respT=NULL,XT=NULL, #respectively: neurons,
   if(traceobj & !is.null(XT) & !is.null(respT)){
     XT=as.matrix(XT)
     respT0=transformResponse(respT,tt)$respMat}
-  if(trW){for(i in 1:length(weight)){weightsRatio[[i]]=0}}
+  if(trW) for(i in 1:length(weight)) weightsRatio[[i]]=0
   N=nrow(X)
   m=ifelse(!is.null(minib),2^minib,N) # minibatch size
   NB=ifelse(m!=N,ifelse(N%%m==0,N%/%m,N%/%m+1),1)
-  error=rep(0,length=10)
+  BN=bnVars$BN
+  gradLocs=seq(500,1500,by=100)
+  error=matrix(NA,ncol=length(gradLocs),nrow=4)
+  if(BN) error=matrix(NA,ncol=length(gradLocs),nrow=5)
   repeat{
     resp2=matrix(0,ncol = dim(resp0)[2],nrow=dim(resp0)[1])
-    # if(!is.null(minib)){
-    #   shuffle=sample(N,N,replace=FALSE)
-    #   X=X[shuffle,]
-    #   resp0=as.matrix(resp0[shuffle,])
-    #   resp1=as.matrix(resp1[shuffle,])
-    #   response=as.matrix(response[shuffle,])
-    # }
-
+    
     for(b in 1:NB){
       t=t+1
       #load mini-batch data
@@ -68,45 +59,55 @@ OptimizeCost<-function(weight,resp,X,respT=NULL,XT=NULL, #respectively: neurons,
       idx=((b-1)*m+1):((b-1)*m+b_size)
       Xb=as.matrix(X[idx,])
       yb=as.matrix(resp0[idx,])
-      
       ### forward propagation
-      FP=forwardPropagate(weight,Xb,outF,active)
-      output=FP$output
-      Z=FP$Z
+      FP=forwardPropagate(weight,biases,Xb,outF,active,bnVars)
+      Y=FP$Y
+      Zhat=FP$Z_hat
+      bnVars_t=bnVars
+      bnVars_t$Z_hat=Zhat
+      bnVars_t$sigma2=FP$popStats$sigma2
       ### back propagation
-      BP=backPropagate(output,Z,weight,yb,ll,outF,active,rr,wD,trW,weightsVec,optimization,
-                       beta1,beta2,momentum,rmsprop,Tolerance,t)
+      BP=backPropagate(Y,weight,biases,yb,ll,outF,active,rr,wD,trW,optimization,
+                       beta1,beta2,momentum,momentum_b,rmsprop,rmsprop_b,Tolerance,t,bnVars_t)
       
       ### update network response
-      rsp2=transformOutput(output,tt,active,CL)
+      rsp2=transformOutput(Y,tt,CL)
       resp2[idx,]=as.matrix(rsp2$yhatMat)
       
-      ### Gradient check loop
-      if(gradientCheck & (r %in% c(500,700,1000,2000,3000,5000,6000,7000,8000,9000))){
-        check=gradChecker2(weight,BP$D,output,yb,tt,ll,outF,active,wD,Tolerance,weightsVector = weightsVec)
-        error[which(c(500,700,1000,2000,3000,5000,6000,7000,8000,9000)==r)]=check
+      ### Gradient check
+      if(gradientCheck & (r %in% gradLocs)){
+        check=gradChecker2(weight,biases,BP$D,BP$Dhat,Y,Zhat,yb,tt,ll,outF,active,wD,Tolerance,bnVars)
+        error[,which(gradLocs==r)]=check
       }
+      
       ### weights update
       weight=BP$W
+      biases=BP$biases
+      bnVars$gammas=BP$g
+      bnVars$betas=BP$b
+      
       ### gradient update
       momentum=BP$momentum
       rmsprop=BP$rmsprop
+      momentum_b=BP$momentum_b
+      rmsprop_b=BP$rmsprop_b
     }
-
+    
     ### Compute Cost
     if(traceobj){
-      FP_obj=forwardPropagate(weight,X,outF,active)
-      output_obj=FP_obj$output
-      obj=objective(output_obj[[length(output_obj)]],resp0,weight,ll,wD,weightsVec)
+      FP_obj=forwardPropagate(weight,biases,X,outF,active,bnVars)
+      Y_obj=FP_obj$Y
+      obj=objective(Y_obj[[length(Y_obj)]],resp0,weight,ll,wD)
       lossCurve=c(lossCurve,obj)
-      respTr=as.matrix(transformOutput(output_obj,tt,active,CL)$yhat)
+      respTr=as.matrix(transformOutput(Y_obj,tt,CL)$yhat)
       if(tt=="Classification"){score=c(score,mean(respTr==as.vector(response)))}
       if(tt=="Regression"){score=c(score,1-obj)}
       if(!is.null(XT) & !is.null(respT)){
-        outT=forwardPropagate(weight,XT,outF,active)$Z
-        obj2=objective(outT[[length(outT)]],respT0,weight,ll,wD,weightsVec)
+        outT=forwardPropagate(weight,biases,XT,outF,active,bnVars)
+        YT=outT$Y
+        obj2=objective(YT[[length(YT)]],respT0,weight,ll,wD)
         lossCurve2=c(lossCurve2,obj2)
-        yhatTest=transformOutput(outT,tt,active,CL)$yhat
+        yhatTest=transformOutput(YT,tt,CL)$yhat
         if(tt=="Classification"){score2=c(score2,mean(respT==yhatTest))}
         if(tt=="Regression"){score2=c(score2,1-obj2)}
       }
@@ -120,20 +121,21 @@ OptimizeCost<-function(weight,resp,X,respT=NULL,XT=NULL, #respectively: neurons,
     
     ### Convergence test
     diff=mean(abs(resp2-resp1))
-    if((r==Epochs)|(diff<Tolerance)){break}
+    if(r==Epochs){break}
     r=r+1
     resp1=resp2
   }
   
   if(trW){
-    for(i in 1:length(weight)){
-      weightsRatio[[i]]=weightsRatio[[i]][,-1]
-    }
+    for(i in 1:length(weight)) weightsRatio[[i]]=weightsRatio[[i]][,-1]
     weightTune=list(weightsRatio,BP$gradupdate)
   }
   
   #final response
-  FP_last=forwardPropagate(weight,X,outF,active)
-  trans=transformOutput(FP_last$output,tt,active,CL)
-  return(list(yhat=trans$yhat,Z=output,W=weight,D=BP$D,reps=r,yhatMat=trans$yhatMat,grad=error,lossTrain=lossCurve,lossTest=lossCurve2,scoreTrain=score,scoreTest=score2,wTune=weightTune))
+  FP_last=forwardPropagate(weight,biases,X,outF,active,bnVars)
+  popStats=FP_last$popStats
+  trans=transformOutput(FP_last$Y,tt,CL)
+  return(list(yhat=trans$yhat,Z=Y,W=weight,b=biases,D=BP$D,reps=r,yhatMat=trans$yhatMat,
+              popStats=popStats,grad=error,lossTrain=lossCurve,lossTest=lossCurve2,scoreTrain=score,
+              scoreTest=score2,wTune=weightTune))
 }
