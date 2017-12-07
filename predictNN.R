@@ -1,7 +1,9 @@
 #make  predictions from a generated model and preprocessed input data
-predictNN<-function(model,X){
+predictNN<-function(model,#model input
+                    X #input test matrix
+                   ){
   L=model$argV
-  out1=forwardPropagate(model$W,X,L$tt,L$outF,L$active)
-  yhatTest=transformOutput(out1$output,L$tt,L$active,model$CL)$yhat
+  out1=forwardPropagate(model$W,model$b,X,L$outF,L$active,L$bnVars,model$popStats)
+  yhatTest=transformOutput(out1$Y,L$tt,model$CL)$yhat
   return(yhatTest)
 }
