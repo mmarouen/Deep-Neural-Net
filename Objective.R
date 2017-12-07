@@ -1,14 +1,18 @@
-objective<-function(X,Y,W,ll="RSS",wD,weightsVector){
+objective<-function(X,#input matrix
+                    Y, #response vector
+                    W, #network weights
+                    ll="RSS", #loss function
+                    wD){
   K=ncol(X)
   N=nrow(X)
+  eps=0
   if(ll=="RSS"){
-    objective=(1/2)*sum(rowSums(((Y-X)^2)))
+    objective=(1/2)*mean(rowSums(((Y-X)^2)))
   }
   if(ll=="CrossEntropy"){
-    if(K==1){objective=-sum(Y*log(X)+(1-Y)*log(1-X))}
-    if(K>1){objective=-sum((Y*log(X)))}
+    if(K==1){objective=-mean(Y*log(X+eps)+(1-Y)*log(1-X-eps))}
+    if(K>1){objective=-mean(rowSums(Y*log(X+eps)))}
   }
-  objective=(1/N)*objective
   if(wD[[1]]){
     lambda=wD[[2]]
     s=0
@@ -19,3 +23,4 @@ objective<-function(X,Y,W,ll="RSS",wD,weightsVector){
   }
   return(objective)
 }
+
