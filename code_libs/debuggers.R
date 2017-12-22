@@ -43,10 +43,8 @@ gradChecker2<-function(W,#network weights
                        active="sigmoid", #hidden layer activation function
                        wD,tol=1e-5,bnList){
   l=sample(2:length(W),1)
-  l=3
   i=sample(1:nrow(W[[l]]),1)
   j=sample(1:ncol(W[[l]]),1) #indice for biases and weight
-  # j=1
   K=ncol(resp)
   BN=bnList$BN
   
