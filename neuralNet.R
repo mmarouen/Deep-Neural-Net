@@ -1,3 +1,5 @@
+source(file="code_libs/Utils.R")
+source(file="code_libs/optimize_cost.R")
 #Neural network method
 #Train a neural network backpropagation using conj. grad. descent
 #type ("Regression","Classification")
@@ -57,7 +59,8 @@ neuralNet<-function(Input,response,InputTest=NULL,respTest=NULL, #input data
     trW=traceWeights,Epochs=epochs,Tolerance=tol, #debugging
     optimization=optAlg,beta1=beta1,beta2=beta2, #optimizers
     momentum=active$momentum,momentum_b=active$momentum_b, #optimizers
-    rmsprop=active$rmsprop,rmsprop_b=active$rmsprop_b,bnVars=active$bnList #optimizers
+    rmsprop=active$rmsprop,rmsprop_b=active$rmsprop_b,
+    bnVars=active$bnList #optimizers
   )
   t2=Sys.time()
   L=list(dw=DW,tt=type,ll=loss,outF=outputFunc,active=activationFunc,rr=rate,wD=weightDecay,
